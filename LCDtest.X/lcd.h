@@ -42,22 +42,10 @@
 #define	LCD_H
 #include <xc.h>
 
-// CHANGE THE IR COMMANDS TO THE PORT BEING USED BY THE MCU
-#define IR LATD
-#define IRSET LATDSET
-#define IRCLR LATDCLR
-
-#define RS PORTDbits.RD10
-#define RW PORTDbits.RD9
-#define EN PORTDbits.RD8
-#define D0 PORTDbits.RD7
-#define D1 PORTDbits.RD6
-#define D2 PORTDbits.RD5
-#define D3 PORTDbits.RD4
-#define D4 PORTDbits.RD3
-#define D5 PORTDbits.RD2
-#define D6 PORTDbits.RD1
-#define D7 PORTDbits.RD0
+#define lcdport LATD
+#define RS LATEbits.LATE0
+#define RW LATEbits.LATE1
+#define EN LATEbits.LATE2
 
 #define INCREMENT_POSITION 1
 #define DECREMENT_POSITION 0
@@ -130,8 +118,8 @@
 //////////////////////////////////////
 
 // LCD FUNCTION DEFINITIONS //
-void lcd_port(char a);
-void lcd_cmd(char a);
+void lcd_cmd(char cmdout);
+void lcd_data(char dataout);
 void lcd_clear();
 void lcd_set_cursor(char a, char b);
 void lcd_init();

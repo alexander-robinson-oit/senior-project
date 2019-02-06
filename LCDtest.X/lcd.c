@@ -11,24 +11,23 @@
 #include "lcd.h"
 #include "functions.h"
 
-void lcd_port(char a)
+void lcd_cmd(char cmdout)
 {
-    D0 = (a & 1 ? 1 : 0);
-    D1 = (a & 2 ? 1 : 0);
-    D2 = (a & 4 ? 1 : 0);
-    D3 = (a & 8 ? 1 : 0);
-    D4 = (a & 16 ? 1 : 0);
-    D5 = (a & 32 ? 1 : 0);
-    D6 = (a & 64 ? 1 : 0);
-    D7 = (a & 128 ? 1 : 0);
+    lcdport = cmdout;
+    RS = 0;
+    RW = 0;
+    EN = 1;
+    timer_1_wait_ms(10);
+    EN = 0;
 }
 
-void lcd_cmd(char a)
+void lcd_data(char dataout)
 {
-    RS = 0;
-    lcd_port(a);
+    lcdport = dataout;
+    RS = 1;
+    RW = 0;
     EN = 1;
-    timer_1_wait_ms(5);
+    timer_1_wait_ms(10);
     EN = 0;
 }
 
@@ -49,13 +48,17 @@ void lcd_set_cursor(char a, char b)
 
 void lcd_init()
 {
-    
+    lcd_cmd(0x38);  // Config LCD in 8-bit, 2 line, and 5x8 font
+    lcd_cmd(0x0C);  // Display on and cursor off
+    lcd_cmd(0x01);  // Clear display screen
+    lcd_cmd(0x06);  // Increment cursor
+    lcd_cmd(0x80);  // Set cursor position to 1st line 1st column
 }
 
 void lcd_write_char(char a)
 {
     RS = 1; // Set register to data register
-    lcd_port(a); // Give the port the data
+    lcd_data(a); // Give the port the data
     EN = 1;     // Data Pulse start
     timer_1_wait_ms(4);
     EN = 0;     // Data Pulse end
@@ -83,14 +86,14 @@ void lcd_shift_left()
 
 void lcd_wait_for_busy()
 {
-    lcd_port(0x0);
+    lcdport = 0;
     TRISDSET = 0x80; // Make RD7 an input temporarily
     RS = 0;
     RW = 1;
-    while (D7 == 1);
+    while (TRISDbits.TRISD7 == 1);
     RW = 0;
     TRISDCLR = 0x80;
-    lcd_port(0x0);
+    lcdport = 0;
 }
 
 

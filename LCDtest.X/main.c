@@ -67,6 +67,9 @@ void setup()
     PORTD = 0x0;
     TRISDCLR = 0xFFF;
     ODCDCLR = 0xFFF;
+    PORTE = 0;
+    TRISE = 0;
+    ODCE = 0;
     
     timer_1_init();
     lcd_init();
