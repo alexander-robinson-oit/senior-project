@@ -1,0 +1,318 @@
+/*
+ * interface.c
+ * Alex Robinson
+ * 
+ * This file holds the definitions of the functions described in the
+ * interface.h file. See each function for more detailed information.
+ */
+
+#include <xc.h>
+#include "interface.h"
+#include "lcd.h"
+#include "tts.h"
+
+int current_menu = 0;
+static int menu_choice = 0;
+/* timer_value is in seconds */
+static int timer_value = 0;
+/* timer_position notates the position between the seconds, minutes, and hours*/
+static int timer_position = 0;
+
+static int volume_select = 0;
+static int voice_select = 0;
+static int pitch_select = 0;
+static int speed_select = 0;
+
+char main_menu_strings[4][32] = { "MAIN MENU       Show", "MAIN MENU       Edit",
+                                  "MAIN MENU       Stop", "MAIN MENU       Options" };
+
+char edit_strings[4][32] = { "EDIT            Habit 1", "EDIT            Habit 2",
+                             "EDIT            Habit 3", "EDIT            Habit 4" };
+
+char stop_strings[5][32] = { "STOP            Habit 1", "STOP            Habit 2",
+                             "STOP            Habit 3", "STOP            Habit 4",
+                             "STOP            All Habits" };
+
+char show_strings[4][32] = { "SHOW            Habit 1", "SHOW            Habit 2",
+                             "SHOW            Habit 3", "SHOW            Habit 4" };
+
+char options_strings[4][32] = { "OPTIONS         Volume", "OPTIONS         Voice",
+                                "OPTIONS         Pitch", "OPTIONS         Speed" };
+
+/* execute_option
+   This function will check which button has been pressed and
+   execute the correct option depending on the command. */
+void execute_command(int command)
+{
+    switch (command)
+    {
+        case UP:
+            /* Special case for edit menu */
+            if (current_menu == EDIT_T)
+            {
+                switch (timer_position)
+                {
+                    case 0:
+                        ++timer_value;
+                        break;
+                    case 1:
+                        timer_value += 10;
+                        break;
+                    case 2:
+                        timer_value += 60;
+                        break;
+                    case 3:
+                        timer_value += 600;
+                        break;
+                    case 4:
+                        timer_value += 3600;
+                        break;
+                    case 5:
+                        timer_value += 36000;
+                        break;
+                }
+                /* Timer display will overflow at 100 hours*/
+                if (timer_value >= 360000)
+                    timer_value = 0;
+            }
+            else
+                ++menu_choice;
+            break;
+        case DOWN:
+            /* Special case for edit menu */
+            if (current_menu == EDIT_T)
+            {
+                switch (timer_position)
+                {
+                    case 0:
+                        --timer_value;
+                        break;
+                    case 1:
+                        timer_value -= 10;
+                        break;
+                    case 2:
+                        timer_value -= 60;
+                        break;
+                    case 3:
+                        timer_value -= 600;
+                        break;
+                    case 4:
+                        timer_value -= 3600;
+                        break;
+                    case 5:
+                        timer_value -= 36000;
+                        break;
+                }
+                /* If timer_value is below zero, timer loops back to max*/
+                if (timer_value < 0)
+                    timer_value = 359999;
+            }
+            else
+                --menu_choice;
+            break;
+        case LEFT:
+            /* This case really only has an effect when editing a timer. */
+            if (current_menu == EDIT_T)
+                timer_position = ++timer_position % 6;
+            break;
+        case RIGHT:
+            if (current_menu == EDIT_T)
+                timer_position = --timer_position % 6;
+            break;
+        case CONFIRM:
+            /* This will have a bit of depth, check function for more detail */
+            confirm();
+            break;
+        case CANCEL:
+            /* Similar implications as confirm */
+            cancel();
+            break;
+        default:
+            break;
+    }
+}
+
+// update_display()
+// This function controls which menu function is used. The LCD will be
+// updated with the correct menu display
+void update_display()
+{
+    switch (current_menu)
+    {
+        case MAIN:
+            display_main_menu();
+            break;
+        case SHOW:
+            display_show();
+            break;
+        case EDIT:
+            display_edit();
+            break;
+        case STOP:
+            display_stop();
+            break;
+        case OPTIONS:
+            display_options();
+            break;
+        case VOLUME:
+            display_volume();
+            break;
+        case VOICE:
+            display_voice();
+            break;
+        case PITCH:
+            display_pitch();
+            break;
+        case SPEED:
+            display_speed();
+            break;
+        case EDIT_T:
+            display_edit_choice(menu_choice % 4);
+            break;
+    }
+}
+
+void display_main_menu()
+{
+    lcd_write_string(main_menu_strings[menu_choice % 4]);
+}
+
+void display_edit()
+{
+    lcd_write_string(edit_strings[menu_choice % 4]);
+}
+
+void display_stop()
+{
+    lcd_write_string(stop_strings[menu_choice % 5]);
+}
+
+void display_show()
+{
+    lcd_write_string(show_strings[menu_choice % 4]);
+}
+void display_options()
+{
+    lcd_write_string(options_strings[menu_choice % 4]);
+}
+void display_volume()
+{
+    lcd_write_string("VOLUME");
+    lcd_cursor_position(0, 1);
+    lcd_write_char(volume_select + 48);
+}
+void display_voice()
+{
+    lcd_write_string("VOICE");
+    lcd_cursor_position(0, 1);
+    lcd_write_char(voice_select + 48);
+}
+void display_pitch()
+{
+    lcd_write_string("PITCH");
+    lcd_cursor_position(0, 1);
+    lcd_write_char(pitch_select + 48);
+}
+void display_speed()
+{
+    lcd_write_string("SPEED");
+    lcd_cursor_position(0, 1);
+    lcd_write_char(pitch_select + 48);
+}
+
+void display_edit_choice(int timer)
+{
+    
+}
+
+void edit_timer(int timer, int seconds)
+{
+    
+}
+void stop_timer(int timer)
+{
+    
+}
+void show_timer(int timer)
+{
+    
+}
+void execute_option(int option, int value)
+{
+    
+}
+
+void confirm()
+{
+    /* effects change context with current menu */
+    switch (current_menu)
+    {
+        case MAIN:
+            /* next menu is based on menu_choice */
+            if (menu_choice % 4 == 0)
+                current_menu = SHOW;
+            else if (menu_choice % 4 == 1)
+                current_menu == EDIT;
+            else if (menu_choice % 4 == 2)
+                current_menu == STOP;
+            else
+                current_menu == OPTIONS;
+            break;
+        case SHOW:
+            /* next menu is the show choice */
+            current_menu = SHOW_T;
+            break;
+        case SHOW_T:
+            /* do nothing, top level*/
+            break;
+        case EDIT:
+            current_menu = EDIT_T;
+            break;
+        case EDIT_T:
+            /* execute the timer edit and send menu back to edit */
+            edit_timer(menu_choice % 4, timer_value);
+            timer_value = 0;
+            timer_position = 0;
+            current_menu = EDIT;
+            break;
+        case STOP:
+            /* stop the timer */
+            break;
+        case OPTIONS:
+            /* dependent on menu_choice */
+            if (menu_choice % 4 == 0)
+                current_menu = VOLUME;
+            else if (menu_choice % 4 == 1)
+                current_menu = VOICE;
+            else if (menu_choice % 4 == 2)
+                current_menu = PITCH;
+            else
+                current_menu = SPEED;
+            break;
+        case VOLUME:
+            current_menu = VOLUME_T;
+            break;
+        case VOICE:
+            current_menu = VOICE_T;
+            break;
+        case PITCH:
+            current_menu = PITCH_T;
+            break;
+        case SPEED:
+            current_menu = SPEED_T;
+            break;
+    }
+    /* menu_choice resets after confirm */
+    menu_choice = 0;
+}
+
+void cancel()
+{
+    /* effects change context with current menu */
+    switch (current_menu)
+    {
+        
+    }
+    /* menu choice resets after cancel */
+    menu_choice = 0;
+}

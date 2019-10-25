@@ -23,15 +23,14 @@ void timer_1_init()
 
 void timer_1_wait_ms(unsigned int ms)
 {
-    //PR1 = 0x9C4;       // Load timer with value for 1ms
-    PR1 = 0x4E20;
+    PR1 = 0x9C4;       // Load timer with value for 1ms
     
     int loop;
     for (loop = 0; loop < ms; ++loop)   // Loop the count for ms
     {
-        T1CONSET = 0x8000;  // Start timer
+        T1CONSET = _T1CON_ON_MASK;  // Start timer
         while (IFS0bits.T1IF != 1); // Wait until interrupt flag is triggered
-        T1CONCLR = 0x8000;  // Stop timer
+        T1CONCLR = _T1CON_ON_MASK;  // Stop timer
         TMR1 = 0x0;         // Empty timer value
     }
 }

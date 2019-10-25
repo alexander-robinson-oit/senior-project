@@ -1,0 +1,71 @@
+/*
+ * interface.h
+ * Alex Robinson
+ * 
+ * This file holds the prototypes for the menuing system intended for the
+ * DeskMate project. These menus are navigated through a graphical interface
+ * provided to the user through the LCD screen. To see the definitions of
+ * each of these functions, see interface.c.
+ */
+
+#ifndef INTERFACE_H
+#define	INTERFACE_H
+
+#define MAIN        0
+#define SHOW        1
+#define SHOW_T      2
+#define EDIT        3
+#define EDIT_T      4
+#define STOP        5
+#define OPTIONS     6
+#define VOLUME      7
+#define VOLUME_T    8
+#define VOICE       9
+#define VOICE_T     10
+#define PITCH       11
+#define PITCH_T     12
+#define SPEED       13
+#define SPEED_T     14
+
+#define UP      1
+#define DOWN    2
+#define LEFT    4
+#define RIGHT   8
+#define CONFIRM 16
+#define CANCEL  32
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+    /* meta-level menu functions */
+    void execute_command(int command);
+    void update_display();
+    void confirm();
+    void cancel();
+    
+    /* intermediary menu display functions */
+    void display_main_menu();
+    void display_edit();
+    void display_stop();
+    void display_show();
+    void display_options();
+    void display_volume();
+    void display_voice();
+    void display_pitch();
+    void display_speed();
+    void display_edit_choice(int timer);
+    
+    /* display execution functions */
+    void edit_timer(int timer, int seconds);
+    void stop_timer(int timer);
+    void show_timer(int timer);
+    void execute_option(int option, int value);
+    
+
+#ifdef	__cplusplus
+}
+#endif
+
+#endif	/* INTERFACE_H */
+
